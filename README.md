@@ -33,7 +33,7 @@ For an example of this type of production data, see this github repo: <https://g
 `prod_curve` returns a list with estimated monthly production data for each well.
 
 * `well_id`: a vector of well IDS
-* `production`: a vector of production months for each well
+* `production_month`: a vector of production months for each well
 * `cumulative_production` a vector of cumulative production for each well
 
 

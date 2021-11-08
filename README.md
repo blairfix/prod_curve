@@ -1,13 +1,11 @@
-# prod_curv
+# prod_curve
 
-`prod_curv` is an R function for calculating monthly production curves for individual oil wells using data that is typically reported by the industry.
-
-
+`prod_curve` is an R function for calculating monthly production curves for individual oil wells using data that is typically reported by the oil industry.
 
 
 ### Inputs
 
-`prod_curv` accepts the following vectors of production data
+`prod_curve` accepts the following vectors of production data
 
 * `well_id`: numbered ID's for individual wells
 * `prod_first_6`: cumulative production during the well's first 6 months
@@ -31,7 +29,8 @@ For an example of this type of production data, see this github repo: <https://g
 
 
 ### Output
-`prod_curv` returns a list with estimated monthly production data for each well.
+
+`prod_curve` returns a list with estimated monthly production data for each well.
 
 * `well_id`: a vector of well IDS
 * `production`: a vector of production months for each well
@@ -42,7 +41,7 @@ For an example of this type of production data, see this github repo: <https://g
 
 ### Installation
 
-To use `manage_frac`, install the following R packages:
+To use `prod_curve`, install the following R packages:
 
 * [Rcpp](https://cran.r-project.org/web/packages/Rcpp/index.html) 
 * [RcppArmadillo](https://cran.r-project.org/web/packages/RcppArmadillo/index.html)

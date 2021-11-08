@@ -34,7 +34,6 @@ For an example of this type of production data, see this github repo: <https://g
 
 * `well_id`: a vector of well IDS
 * `production`: a vector of production months for each well
-* `monthly_production` a vector of monthly production for each well
 * `cumulative_production` a vector of cumulative production for each well
 
 

@@ -239,9 +239,6 @@ std::map< std::string, std::list<double>> prod_curve (
                     tmp.fill(cumulative_counter + prod_current);
                     prod_cum_norm(id) = tmp;
 
-                    // normalized monthly production remains the same
-                    prod_monthly_norm(id) = prod_interp_sub;
-
 
                 } else {
                     // if interpolated production is non-zero, set cumulative production
@@ -249,9 +246,6 @@ std::map< std::string, std::list<double>> prod_curve (
                     // be equal to empirical current production
 
                     prod_cum_norm(id) = arma::cumsum( prod_interp_sub ) / interp_sum * prod_current + cumulative_counter;
-
-                    // normalize monthly production
-                    prod_monthly_norm(id) = prod_interp_sub / interp_sum * prod_current ;
 
                 }
 
@@ -269,7 +263,6 @@ std::map< std::string, std::list<double>> prod_curve (
 
                     output["well_id"].push_back(well_id[i]);
                     output["production_month"].push_back( dates_interpolate[t] );
-                    output["monthly_production"].push_back( prod_monthly_norm[t] );
                     output["cumulative_production"].push_back( prod_cum_norm[t] );
 
                 }

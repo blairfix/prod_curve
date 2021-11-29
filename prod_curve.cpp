@@ -94,6 +94,12 @@ std::map< std::string, std::list<double>> prod_curve (
         dates_cumulative_production = dates_cumulative_production(id);
         cumulative_production = cumulative_production(id);
 
+        // remove descending production
+        arma::vec prod_diff = arma::diff(cumulative_production);
+        id = arma::find( prod_diff < 0 ) + 1;
+
+        dates_cumulative_production.shed_rows(id);
+        cumulative_production.shed_rows(id);
 
 
         //----------------------------------------------------------------------------------------------
@@ -220,6 +226,17 @@ std::map< std::string, std::list<double>> prod_curve (
                 // get empirical production total during current time window
                 double prod_current = cumulative_production[j] - cumulative_production[j-1];
 
+                // check for negative production
+                if( prod_current < 0 ){
+                    prod_current = 0;
+                }
+
+                // check for cumulative production overshoot
+                if( cumulative_counter >= prod_cumulative[i] ){
+                    prod_current = 0;
+                }
+
+
                 // get interpolated production during current time window
                 id = arma::find(   dates_interpolate >= dates_cumulative_production[j-1]
                                 && dates_interpolate <= dates_cumulative_production[j] );
@@ -251,6 +268,22 @@ std::map< std::string, std::list<double>> prod_curve (
 
                 // advance cumulative production counter
                 cumulative_counter = cumulative_counter + prod_current;
+            }
+
+
+            // test for step function
+            // get first differences of cumulative production
+            // test if any value greater than 20% of cumulative production
+
+            arma::vec prod_diff = arma::diff(prod_cum_norm);
+
+            if(arma::max(prod_diff) >= 0.1*prod_cumulative[i]){
+
+                arma::interp1(dates_cumulative_production,
+                              cumulative_production,
+                              dates_interpolate,
+                              prod_cum_norm,
+                              "*linear");
             }
 
 

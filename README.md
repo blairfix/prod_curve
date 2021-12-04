@@ -24,6 +24,7 @@ date_end
 * `decline_12`: the percentage decline in production 3 months after peak production
 * `decline_24`: the percentage decline in production 3 months after peak production
 * `decline_60`: the percentage decline in production 3 months after peak production
+* `step_threshold`: a fractional threshold to test for a step function in the production curve. If any change in cumulative production between time steps is greater than `step_threshold*prod_cumulative`, we estimate the production curve solely from cumulative production data.
 
 For an example of this type of production data, see this github repo: <https://github.com/magerton/drillinginfo-data-import>
 

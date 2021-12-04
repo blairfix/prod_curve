@@ -27,7 +27,8 @@ std::map< std::string, std::list<double>> prod_curve (
     const arma::vec & decline_3,
     const arma::vec & decline_12,
     const arma::vec & decline_24,
-    const arma::vec & decline_60
+    const arma::vec & decline_60,
+    double step_threshold
     )
 
 {
@@ -273,11 +274,11 @@ std::map< std::string, std::list<double>> prod_curve (
 
             // test for step function
             // get first differences of cumulative production
-            // test if any value greater than 20% of cumulative production
+            // test if any value greater than step_threshold x cumulative production
 
             arma::vec prod_diff = arma::diff(prod_cum_norm);
 
-            if(arma::max(prod_diff) >= 0.1*prod_cumulative[i]){
+            if(arma::max(prod_diff) >= step_threshold*prod_cumulative[i]){
 
                 arma::interp1(dates_cumulative_production,
                               cumulative_production,

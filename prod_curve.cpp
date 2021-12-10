@@ -82,26 +82,27 @@ std::map< std::string, std::list<double>> prod_curve (
 
         // remove missing data
         arma::uvec id = arma::find_finite( cumulative_production );
-
         dates_cumulative_production = dates_cumulative_production(id);
         cumulative_production = cumulative_production(id);
 
         // keep only dates less than or equal to months active
         id = arma::find( dates_cumulative_production <= months_active );
+        dates_cumulative_production = dates_cumulative_production(id);
+        cumulative_production = cumulative_production(id);
 
+        // keep only dates greater than/equal to 0
+        id = arma::find( dates_cumulative_production >= 0 );
         dates_cumulative_production = dates_cumulative_production(id);
         cumulative_production = cumulative_production(id);
 
         // sort cumulative production curve in ascending date order
         id = arma::sort_index( dates_cumulative_production );
-
         dates_cumulative_production = dates_cumulative_production(id);
         cumulative_production = cumulative_production(id);
 
         // remove descending production
         arma::vec prod_diff = arma::diff(cumulative_production);
         id = arma::find( prod_diff < 0 ) + 1;
-
         dates_cumulative_production.shed_rows(id);
         cumulative_production.shed_rows(id);
 
@@ -255,6 +256,7 @@ std::map< std::string, std::list<double>> prod_curve (
 
                 // normalized production
                 if( interp_sum == 0){
+
                     // if interpolated production sums to 0, set normalized cumulative production
                     // to sum of empirical current production + empirical cumulative production
 
@@ -264,6 +266,7 @@ std::map< std::string, std::list<double>> prod_curve (
 
 
                 } else {
+
                     // if interpolated production is non-zero, set cumulative production
                     // to cumulative sum  of interpolated production, normalized to
                     // be equal to empirical current production
@@ -283,18 +286,23 @@ std::map< std::string, std::list<double>> prod_curve (
 
             arma::vec prod_diff = arma::diff(prod_cum_norm);
 
-            if(arma::max(prod_diff) >= step_threshold*prod_cumulative[i]){
+            if( prod_diff.size() > 1){
 
-                arma::interp1(dates_cumulative_production,
-                              cumulative_production,
-                              dates_interpolate,
-                              prod_cum_norm,
-                              "*linear");
+                if(arma::max(prod_diff) >= step_threshold*prod_cumulative[i]){
+
+                    arma::interp1(dates_cumulative_production,
+                                  cumulative_production,
+                                  dates_interpolate,
+                                  prod_cum_norm,
+                                  "*linear");
+                }
             }
+
 
 
             // append well id, dates, and production estimate to output list
             // append if whole month only
+
             for(int t = 0; t < dates_interpolate.size(); t++){
 
                 // if whole month, pushback to output

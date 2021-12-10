@@ -17,6 +17,7 @@ std::map< std::string, std::list<double>> prod_curve (
     const arma::vec & prod_first_12,
     const arma::vec & prod_first_24,
     const arma::vec & prod_first_60,
+    const arma::vec & prod_2nd_last_year,
     const arma::vec & prod_last_year,
     const arma::vec & prod_daily_last_year,
     const arma::vec & prod_cumulative,
@@ -50,13 +51,14 @@ std::map< std::string, std::list<double>> prod_curve (
         arma::vec cumulative_production;
 
         cumulative_production
-            << 0                                                // assume production starts at 0
-            << prod_first_6[i]                                  // months 0-6  cumulative production
-            << prod_first_12[i]                                 // months 0-12 cumulative production
-            << prod_first_24[i]                                 // months 0-24 cumulative production
-            << prod_first_60[i]                                 // months 0-60 cumulative production
-            << prod_cumulative[i] - prod_last_year[i]           // cumulative production year before report data
-            << prod_cumulative[i]                               // cumulative production to date
+            << 0                                                               // assume production starts at 0
+            << prod_first_6[i]                                                 // months 0-6  cumulative production
+            << prod_first_12[i]                                                // months 0-12 cumulative production
+            << prod_first_24[i]                                                // months 0-24 cumulative production
+            << prod_first_60[i]                                                // months 0-60 cumulative production
+            << prod_cumulative[i] - prod_last_year[i]- prod_2nd_last_year[i]   // cumulative production up to 2nd last year
+            << prod_cumulative[i] - prod_last_year[i]                          // cumulative production up to year before report data
+            << prod_cumulative[i]                                              // cumulative production to date
             << arma::endr;
 
         // dates for for cumulative production entries
@@ -72,6 +74,7 @@ std::map< std::string, std::list<double>> prod_curve (
             << 12                                   // month 12
             << 24                                   // month 24
             << 60                                   // month 60
+            << months_active - 24                   // 2 years before end month
             << months_active - 12                   // year before end month
             << months_active                        // end month
             << arma::endr;
@@ -113,15 +116,16 @@ std::map< std::string, std::list<double>> prod_curve (
 
         monthly_production
             << 0                                                // assume production starts at 0
-            << prod_first_6[i] / 6                              // months 0 - 6 average monthly production
-            << (prod_first_12[i] - prod_first_6[i] ) / 6        // months 6 -12 average monthly production
-            << (prod_first_24[i] - prod_first_12[i]) / 12       // months 12-24 average monthly production
-            << (prod_first_60[i] - prod_first_24[i]) / 36       // months 24-60 average monthly production
+            << prod_first_6[i] / 6                              // average monthly production, months 0 - 6
+            << (prod_first_12[i] - prod_first_6[i] ) / 6        // average monthly production, months 6 -12
+            << (prod_first_24[i] - prod_first_12[i]) / 12       // average monthly production, months 12-24
+            << (prod_first_60[i] - prod_first_24[i]) / 36       // average monthly production, months 24-60
             << prod_peak_monthly                                // production during peak month
-            << prod_peak_monthly * (1 - decline_3[i] / 100 )    // production 3  months after peak
-            << prod_peak_monthly * (1 - decline_12[i] / 100)    // production 12 months after peak
-            << prod_peak_monthly * (1 - decline_24[i] / 100)    // production 24 months after peak
-            << prod_peak_monthly * (1 - decline_60[i] / 100)    // production 60 months after peak
+            << prod_peak_monthly * (1 - decline_3[i] / 100 )    // monthly production 3  months after peak
+            << prod_peak_monthly * (1 - decline_12[i] / 100)    // monthly production 12 months after peak
+            << prod_peak_monthly * (1 - decline_24[i] / 100)    // monthly production 24 months after peak
+            << prod_peak_monthly * (1 - decline_60[i] / 100)    // monthly production 60 months after peak
+            << prod_2nd_last_year[i] / 12                          // average monthly production during second last year of operation
             << prod_daily_last_year[i] * 30                     // average monthly production during last year of operation
             << arma::endr;
 
@@ -139,6 +143,7 @@ std::map< std::string, std::list<double>> prod_curve (
             << peak_month[i] + 12       // 12 months after peak production
             << peak_month[i] + 24       // 24 months after peak production
             << peak_month[i] + 60       // 60 months after peak production
+            << months_active - 12       // one year before end date
             << months_active            // last month of production
             << arma::endr;
 

@@ -39,15 +39,15 @@ arma::mat prod_curve (
     // number of wells
     int n_wells = prod_cumulative.size();
 
-
-    // months active by well
+    // estimate nrows of output
     arma::vec n_active =   arma::ceil( date_end - date_start )*12 ;
     n_active = n_active.elem( find_finite( n_active ) );
-    int active_sum = arma::sum(n_active) * 1.2 ; // add padding
+    int nrows = arma::sum(n_active) ;
+    nrows = nrows * 1.2 ; // add padding
 
-    // output matrix
-    arma::mat output(active_sum, 5, arma::fill::value(-999) );
-    int id_out = 0;
+    // output matrix (empty vals set to -999)
+    arma::mat output(nrows, 5, arma::fill::value(-999) );
+    int id_out = 0; // output index counter
 
 
     // loop over individual wells
@@ -363,8 +363,14 @@ arma::mat prod_curve (
 
     // remove empty values from output matrix
     arma::uvec id_keep = find(output.col(0) != -999 );
-
     output = output.rows( id_keep ) ;
+
+    // output matrix contains following columns:
+    // 1. well id
+    // 2. production month number
+    // 3. year decimal of production
+    // 4. cumulative production of well
+    // 5. monthly production of well
 
 
     return output;

@@ -29,6 +29,7 @@ std::map< std::string, std::list<double>> prod_curve (
     const arma::vec & decline_12,
     const arma::vec & decline_24,
     const arma::vec & decline_60,
+    double time_step,
     double step_threshold
     )
 
@@ -203,7 +204,7 @@ std::map< std::string, std::list<double>> prod_curve (
         if( dates_monthly_production.size() > 1 ){
 
             // interpolation dates
-            arma::vec dates_interpolate = arma::regspace(0, 0.1, months_active);
+            arma::vec dates_interpolate = arma::regspace(0, time_step, months_active);
 
             // interpolate with fast linear (assumes monotonic increasing x)
             arma::vec monthly_production_interpolate;
@@ -300,17 +301,42 @@ std::map< std::string, std::list<double>> prod_curve (
 
 
 
+
             // append well id, dates, and production estimate to output list
             // append if whole month only
+
+            int t_old = 0;
 
             for(int t = 0; t < dates_interpolate.size(); t++){
 
                 // if whole month, pushback to output
                 if( dates_interpolate[t] == round(dates_interpolate[t]) ){
 
+                    // well id
                     output["well_id"].push_back(well_id[i]);
+
+                    // production month
                     output["production_month"].push_back( dates_interpolate[t] );
+
+                    // decimal year of production rounded to month
+                    double year = std::floor( 12 * date_start[i] ) / 12 +  dates_interpolate[t] / 12;
+                    output["year"].push_back( year );
+
+                    // cumulative production
                     output["cumulative_production"].push_back( prod_cum_norm[t] );
+
+
+                    // monthly production
+                    double month_prod;
+
+                    if( t == 0 ){
+                        month_prod = 0;
+                    } else{
+                        month_prod = prod_cum_norm[t] - prod_cum_norm[t_old];
+                    }
+
+                    output["monthly_production"].push_back( month_prod );
+                    t_old = t;
 
                 }
             }

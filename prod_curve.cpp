@@ -11,7 +11,7 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 
-std::map< std::string, std::list<double>> prod_curve (
+arma::mat prod_curve (
     const arma::uvec & well_id,
     const arma::vec & prod_first_6,
     const arma::vec & prod_first_12,
@@ -35,11 +35,20 @@ std::map< std::string, std::list<double>> prod_curve (
 
 {
 
-    // final result map
-    std::map< std::string, std::list<double>> output;
 
     // number of wells
     int n_wells = prod_cumulative.size();
+
+
+    // months active by well
+    arma::vec n_active =   arma::ceil( date_end - date_start )*12 ;
+    n_active = n_active.elem( find_finite( n_active ) );
+    int active_sum = arma::sum(n_active) * 1.2 ; // add padding
+
+    // output matrix
+    arma::mat output(active_sum, 5, arma::fill::value(-999) );
+    int id_out = 0;
+
 
     // loop over individual wells
     boost::progress_display show_progress(n_wells);
@@ -304,7 +313,6 @@ std::map< std::string, std::list<double>> prod_curve (
 
             // append well id, dates, and production estimate to output list
             // append if whole month only
-
             int t_old = 0;
 
             for(int t = 0; t < dates_interpolate.size(); t++){
@@ -313,17 +321,18 @@ std::map< std::string, std::list<double>> prod_curve (
                 if( dates_interpolate[t] == round(dates_interpolate[t]) ){
 
                     // well id
-                    output["well_id"].push_back(well_id[i]);
+                    output(id_out, 0) = well_id[i] ;
 
                     // production month
-                    output["production_month"].push_back( dates_interpolate[t] );
+                    output(id_out, 1) = dates_interpolate[t] ;
 
                     // decimal year of production rounded to month
                     double year = std::floor( 12 * date_start[i] ) / 12 +  dates_interpolate[t] / 12;
-                    output["year"].push_back( year );
+
+                    output(id_out, 2) = year ;
 
                     // cumulative production
-                    output["cumulative_production"].push_back( prod_cum_norm[t] );
+                    output(id_out, 3) =  prod_cum_norm[t] ;
 
 
                     // monthly production
@@ -335,8 +344,11 @@ std::map< std::string, std::list<double>> prod_curve (
                         month_prod = prod_cum_norm[t] - prod_cum_norm[t_old];
                     }
 
-                    output["monthly_production"].push_back( month_prod );
+                    output(id_out, 4) = month_prod;
+
+                    // update counters
                     t_old = t;
+                    id_out++;
 
                 }
             }
@@ -348,6 +360,12 @@ std::map< std::string, std::list<double>> prod_curve (
         ++show_progress;
 
     }
+
+    // remove empty values from output matrix
+    arma::uvec id_keep = find(output.col(0) != -999 );
+
+    output = output.rows( id_keep ) ;
+
 
     return output;
 
